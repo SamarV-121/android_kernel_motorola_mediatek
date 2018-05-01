@@ -28,7 +28,7 @@
 #if CFG_SUPPORT_AGPS_ASSIST
 #include "gl_kal.h"
 #endif
-#if CFG_TC1_FEATURE || defined(CONFIG_MTK_COMBO_AOSP_TETHERING_SUPPORT)
+#if CFG_TC1_FEATURE
 #include <tc1_partition.h>
 #endif
 #include "gl_vendor.h"
