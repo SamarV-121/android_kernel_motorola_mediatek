@@ -28,7 +28,7 @@
 #if CFG_SUPPORT_AGPS_ASSIST
 #include "gl_kal.h"
 #endif
-#if CFG_TC1_FEATURE
+#if CFG_TC1_FEATURE || defined(CONFIG_MTK_COMBO_AOSP_TETHERING_SUPPORT)
 #include <tc1_partition.h>
 #endif
 #include "gl_vendor.h"
@@ -214,8 +214,9 @@ const UINT_32 mtk_cipher_suites[] = {
 
 /* NIC interface name */
 #define NIC_INF_NAME    "wlan%d"
-#if CFG_TC1_FEATURE
+#if CFG_TC1_FEATURE || defined(CONFIG_MTK_COMBO_AOSP_TETHERING_SUPPORT)
 #define NIC_INF_NAME_IN_AP_MODE  "legacy%d"
+extern volatile int wlan_if_changed;
 #endif
 
 /* support to change debug module info dynamically */
@@ -1753,7 +1754,7 @@ static struct wireless_dev *wlanNetCreate(PVOID pvData)
 	prGlueInfo = (P_GLUE_INFO_T) wiphy_priv(prWdev->wiphy);
 	kalMemZero(prGlueInfo, sizeof(GLUE_INFO_T));
 	/* 4 <3.1> Create net device */
-#if CFG_TC1_FEATURE
+#if CFG_TC1_FEATURE || defined(CONFIG_MTK_COMBO_AOSP_TETHERING_SUPPORT)
 	if (wlan_if_changed)
 		prGlueInfo->prDevHandler = alloc_netdev_mq(sizeof(P_GLUE_INFO_T), NIC_INF_NAME_IN_AP_MODE,
 							   NET_NAME_PREDICTABLE, ether_setup, CFG_MAX_TXQ_NUM);
