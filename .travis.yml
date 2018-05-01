@@ -4,7 +4,7 @@ before_install:
 - sudo apt-get install zip
 - sudo apt install ccache
 - sudo apt install liblz4-tool
-- git clone --recursive https://github.com/SamarV-121/android_kernel_motorola_nicklaus -b nougat ~/kernel
+- git clone --recursive https://github.com/SamarV-121/android_kernel_motorola_nicklaus -b cm-14.1 ~/kernel
 - git clone https://github.com/SamarV-121/gcc-prebuilts -b arm-gnu-7.x ~/kernel/tc
 script:
 - cd ~/kernel
