@@ -1,16 +1,3 @@
-/*
- * Copyright (C) 2015 MediaTek Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- */
-
 #ifdef WIN32
 #include "win_test.h"
 #include "stdio.h"
@@ -59,6 +46,7 @@
 
 /* device name and major number */
 #define FLASHLIGHT_DEVNAME            "kd_camera_flashlight"
+#define FLASHLIGHT_PLATFORM_DEVNAME            "flashlight_platform_devname"
 
 /******************************************************************************
  * Debug configuration
@@ -70,8 +58,7 @@
 #define PK_DBG_NONE(fmt, arg...)    do {} while (0)
 #define PK_DBG_FUNC(fmt, arg...)    pr_debug(PFX "%s: " fmt, __func__ , ##arg)
 
-/*#define DEBUG_KD_STROBE*/
-
+#define DEBUG_KD_STROBE
 #ifdef DEBUG_KD_STROBE
 #define logI PK_DBG_FUNC
 #else
@@ -338,11 +325,7 @@ static void Lbat_protection_powerlimit_flash(LOW_BATTERY_LEVEL level)
 	if (level == LOW_BATTERY_LEVEL_0) {
 		gLowPowerVbat = LOW_BATTERY_LEVEL_0;
 	} else if (level == LOW_BATTERY_LEVEL_1) {
-/* Vanzo:zhangqingzhan on: Mon, 10 Oct 2016 11:55:27 +0800
- *level not close flash
-		closeFlash();
- */
-// End of Vanzo: zhangqingzhan
+		//closeFlash();
 		gLowPowerVbat = LOW_BATTERY_LEVEL_1;
 
 	} else if (level == LOW_BATTERY_LEVEL_2) {
@@ -431,15 +414,10 @@ static long flashlight_ioctl_core(struct file *file, unsigned int cmd, unsigned 
 		logI("FLASH_IOC_IS_LOW_POWER");
 		{
 			int isLow = 0;
-
-			if (gLowPowerPer != BATTERY_PERCENT_LEVEL_0
-/* Vanzo:zhangqingzhan on: Mon, 10 Oct 2016 11:55:50 +0800
- *level 2 close flash
-			|| gLowPowerVbat != LOW_BATTERY_LEVEL_0)
- */
-			|| gLowPowerVbat == LOW_BATTERY_LEVEL_2)
-// End of Vanzo: zhangqingzhan
-				isLow = 1;
+		//lenovo.sw huangsh4 change for taidoM,low power state,enable flash_on
+		//	if (gLowPowerPer != BATTERY_PERCENT_LEVEL_0
+		//	|| gLowPowerVbat != LOW_BATTERY_LEVEL_0)
+		//		isLow = 1;
 			logI("FLASH_IOC_IS_LOW_POWER %d %d %d", gLowPowerPer, gLowPowerVbat, isLow);
 			kdArg.arg = isLow;
 			if (copy_to_user
@@ -663,6 +641,38 @@ static const struct file_operations flashlight_fops = {
 #endif
 };
 
+#define USE_CAMERA_FLASHLIGHT_NODE	
+
+#ifdef USE_CAMERA_FLASHLIGHT_NODE 
+extern int FL_set_mainflashlight(int onOff);
+static int onoff;	//1:open,0:close
+static ssize_t show_main_brightness(struct device *dev, struct device_attribute *attr,
+			 char *buf)
+{
+	printk("Flashlight enable value is:%d\n", onoff);
+	return sprintf(buf, "%u\n", onoff);
+}
+
+static ssize_t store_main_brightness(struct device *dev, struct device_attribute *attr,
+			  const char *buf, size_t size)
+{
+	int err;
+	err = kstrtoint(buf,10,&onoff);
+	if(err){
+		printk("Wrong format\n");
+		return size;
+	}
+	printk("onoff = %d\n",onoff);
+	if(onoff){
+		FL_set_mainflashlight(onoff);
+	}else{
+		FL_set_mainflashlight(onoff);
+	}
+	return size;
+}
+static DEVICE_ATTR(main_brightness, 0664, show_main_brightness, store_main_brightness);
+#endif
+
 /* ======================================================================== */
 /* Driver interface */
 /* ======================================================================== */
@@ -676,10 +686,7 @@ static struct device *flashlight_device;
 static struct flashlight_data flashlight_private;
 static dev_t flashlight_devno;
 static struct cdev flashlight_cdev;
-/* Vanzo:yangzhihong on: Mon, 18 Jan 2016 21:18:19 +0800
- */
-extern int flashlight_gpio_init(struct platform_device *pdev);
-// End of Vanzo:yangzhihong
+extern int mtkflashlight_gpio_init(struct platform_device *pdev);
 /* ======================================================================== */
 #define ALLOC_DEVNO
 static int flashlight_probe(struct platform_device *dev)
@@ -687,6 +694,7 @@ static int flashlight_probe(struct platform_device *dev)
 	int ret = 0, err = 0;
 
 	logI("[flashlight_probe] start ~");
+	printk("[flashlight_probe] start in Printk~\n");
 
 #ifdef ALLOC_DEVNO
 	ret = alloc_chrdev_region(&flashlight_devno, 0, 1, FLASHLIGHT_DEVNAME);
@@ -730,16 +738,17 @@ static int flashlight_probe(struct platform_device *dev)
 		goto flashlight_probe_error;
 	}
 
+	#ifdef USE_CAMERA_FLASHLIGHT_NODE
+	ret = device_create_file(flashlight_device,&dev_attr_main_brightness);
+	printk("[flashlight_probe] device_create_file ret=%d\n",ret);
+	#endif
+
 	/* initialize members */
 	spin_lock_init(&flashlight_private.lock);
 	init_waitqueue_head(&flashlight_private.read_wait);
 	/* init_MUTEX(&flashlight_private.sem); */
 	sema_init(&flashlight_private.sem, 1);
-
-/* Vanzo:yangzhihong on: Mon, 18 Jan 2016 21:04:02 +0800
- */
-    flashlight_gpio_init(dev);
-// End of Vanzo:yangzhihong
+	mtkflashlight_gpio_init(dev);
 
 	logI("[flashlight_probe] Done ~");
 	return 0;
@@ -783,56 +792,45 @@ static void flashlight_shutdown(struct platform_device *dev)
 	logI("[flashlight_shutdown] Done ~");
 }
 
-/* Vanzo:yangzhihong on: Tue, 19 Jan 2016 17:29:16 +0800
- */
 #ifdef CONFIG_OF
-static const struct of_device_id flashlight_match_table[] = {
-  { .compatible = "mediatek, gpio_flashlight", },
-  {}
+static const struct of_device_id FLASHLIGHT_of_match[] = {
+	{.compatible = "mediatek,mt6735m-flashlight"},
+	{},
 };
 #endif
-// End of Vanzo:yangzhihong
+
 static struct platform_driver flashlight_platform_driver = {
 	.probe = flashlight_probe,
 	.remove = flashlight_remove,
 	.shutdown = flashlight_shutdown,
 	.driver = {
-		   .name = FLASHLIGHT_DEVNAME,
+		   .name = FLASHLIGHT_PLATFORM_DEVNAME,
 		   .owner = THIS_MODULE,
-/* Vanzo:yangzhihong on: Tue, 19 Jan 2016 17:29:42 +0800
- */
 #ifdef CONFIG_OF
-           .of_match_table = flashlight_match_table,
+	.of_match_table = FLASHLIGHT_of_match,
 #endif
-// End of Vanzo:yangzhihong
 		   },
 };
-/* Vanzo:zhangqingzhan on: Wed, 07 Dec 2016 14:43:25 +0800
- *use dts
+
 static struct platform_device flashlight_platform_device = {
-	.name = FLASHLIGHT_DEVNAME,
+	.name = FLASHLIGHT_PLATFORM_DEVNAME,
 	.id = 0,
 	.dev = {
 		}
 };
- */
 
-// End of Vanzo: zhangqingzhan
 static int __init flashlight_init(void)
 {
 	int ret = 0;
 
 	logI("[flashlight_probe] start ~");
-/* Vanzo:zhangqingzhan on: Wed, 07 Dec 2016 14:43:45 +0800
- * use dts
+
 	ret = platform_device_register(&flashlight_platform_device);
 	if (ret) {
 		logI("[flashlight_probe] platform_device_register fail ~");
 		return ret;
 	}
- */
 
-// End of Vanzo: zhangqingzhan
 	ret = platform_driver_register(&flashlight_platform_driver);
 	if (ret) {
 		logI("[flashlight_probe] platform_driver_register fail ~");

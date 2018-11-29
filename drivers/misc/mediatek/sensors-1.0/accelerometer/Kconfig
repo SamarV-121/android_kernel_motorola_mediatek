@@ -1,4 +1,3 @@
-
 config MTK_AUTO_DETECT_ACCELEROMETER
 	bool "MTK AUTO DETECT ACCELEROMETER Sensor"
 	depends on MTK_SENSOR_SUPPORT
@@ -16,11 +15,6 @@ config CUSTOM_KERNEL_ACCELEROMETER
 	  configuration should be configured, and the acceleometer
 	  driver configuration should be configured as well.
 
-source "drivers/misc/mediatek/sensors-1.0/accelerometer/accelhub/Kconfig"
-source "drivers/misc/mediatek/sensors-1.0/accelerometer/bmi160-spi/Kconfig"
-source "drivers/misc/mediatek/sensors-1.0/accelerometer/mc3410-i2c/Kconfig"
-source "drivers/misc/mediatek/sensors-1.0/accelerometer/mpu6515/Kconfig"
-source "drivers/misc/mediatek/sensors-1.0/accelerometer/bma222e/Kconfig"
-source "drivers/misc/mediatek/sensors-1.0/accelerometer/mpu6050g/Kconfig"
-source "drivers/misc/mediatek/sensors-1.0/accelerometer/stk8baxx/Kconfig"
-source "drivers/misc/mediatek/sensors-1.0/accelerometer/mir3da/Kconfig"
+source "drivers/misc/mediatek/sensors-1.0/accelerometer/KXTJ2_1009/Kconfig"
+source "drivers/misc/mediatek/sensors-1.0/accelerometer/bma2xx-new/Kconfig"
+

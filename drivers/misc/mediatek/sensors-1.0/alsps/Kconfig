@@ -1,4 +1,3 @@
-
 config CUSTOM_KERNEL_ALSPS
 	bool "CUSTOM KERNEL ALSPS Config"
 	help
@@ -23,3 +22,5 @@ source "drivers/misc/mediatek/sensors-1.0/alsps/epl2182/Kconfig"
 source "drivers/misc/mediatek/sensors-1.0/alsps/APDS9930/Kconfig"
 source "drivers/misc/mediatek/sensors-1.0/alsps/ltr559/Kconfig"
 source "drivers/misc/mediatek/sensors-1.0/alsps/stk3x1x/Kconfig"
+source "drivers/misc/mediatek/sensors-1.0/alsps/epl2590-new/Kconfig"
+

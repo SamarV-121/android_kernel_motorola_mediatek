@@ -1,16 +1,3 @@
-/*
- * Copyright (C) 2015 MediaTek Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- */
-
 #ifndef _CUST_BATTERY_METER_H
 #define _CUST_BATTERY_METER_H
 
@@ -34,7 +21,6 @@
 	|| defined(CONFIG_MTK_BQ24261_SUPPORT)
 #define SWCHR_POWER_PATH
 #define EXTERNAL_SWCHR_SUPPORT
-#define DISABLE_RFG_EXIST_CHECK
 #endif
 
 /* ADC resistor  */
@@ -103,7 +89,7 @@
 #define BATTERYPSEUDO100		95
 #define BATTERYPSEUDO1			4
 
-/* #define Q_MAX_BY_SYS */
+#define Q_MAX_BY_SYS
 #define Q_MAX_SYS_VOLTAGE		3300
 #define SHUTDOWN_GAUGE0
 #define SHUTDOWN_GAUGE1_XMINS
@@ -120,7 +106,7 @@
 #define DIFFERENCE_HWOCV_VBAT		30
 
 /* fg 1.0 */
-#define CUST_POWERON_DELTA_CAPACITY_TOLRANCE	40
+#define CUST_POWERON_DELTA_CAPACITY_TOLRANCE	30
 #define CUST_POWERON_LOW_CAPACITY_TOLRANCE		5
 #define CUST_POWERON_MAX_VBAT_TOLRANCE			90
 #define CUST_POWERON_DELTA_VBAT_TOLRANCE		30
@@ -167,10 +153,10 @@
 
 #if defined(CONFIG_MTK_BQ24196_SUPPORT) \
 	|| defined(CONFIG_MTK_BQ24296_SUPPORT) \
-	|| defined(CONFIG_MTK_BQ24261_SUPPORT)
+	|| defined(CONFIG_MTK_BQ24261_SUPPORT)\
+	|| defined(CONFIG_MTK_SM5414_SUPPORT) //modify by caozhg
 #define SWCHR_POWER_PATH
 #define EXTERNAL_SWCHR_SUPPORT
-#define DISABLE_RFG_EXIST_CHECK
 #endif
 
 /* ADC resistor  */
@@ -187,16 +173,32 @@
 
 #define FG_METER_RESISTANCE 0
 
+#ifndef CONFIG_SLT_BATTERY_3500MA_SUPPORT //2750mA
 /* Qmax for battery  */
-#define Q_MAX_POS_50 1463
-#define Q_MAX_POS_25 1437
-#define Q_MAX_POS_0 1220
-#define Q_MAX_NEG_10 1137
+#define Q_MAX_POS_50 2809 //modify by caozhg
+#define Q_MAX_POS_25 2816
+#define Q_MAX_POS_0 2858
+#define Q_MAX_NEG_10 2863
 
-#define Q_MAX_POS_50_H_CURRENT 1511
-#define Q_MAX_POS_25_H_CURRENT 1462
-#define Q_MAX_POS_0_H_CURRENT 818
-#define Q_MAX_NEG_10_H_CURRENT 149
+#define Q_MAX_POS_50_H_CURRENT 2793
+#define Q_MAX_POS_25_H_CURRENT 2801
+#define Q_MAX_POS_0_H_CURRENT 2716
+#define Q_MAX_NEG_10_H_CURRENT 2346
+
+#else//3500mA
+
+/* Qmax for battery  */
+#define Q_MAX_POS_50 3421 //modify by caozhg
+#define Q_MAX_POS_25 3496
+#define Q_MAX_POS_0 3456
+#define Q_MAX_NEG_10 3495
+
+#define Q_MAX_POS_50_H_CURRENT 3405
+#define Q_MAX_POS_25_H_CURRENT 3472
+#define Q_MAX_POS_0_H_CURRENT 3303
+#define Q_MAX_NEG_10_H_CURRENT 2635
+
+#endif
 
 
 /* Discharge Percentage */
@@ -239,7 +241,7 @@
 #define BATTERYPSEUDO100		95
 #define BATTERYPSEUDO1			4
 
-/* #define Q_MAX_BY_SYS */
+#define Q_MAX_BY_SYS
 #define Q_MAX_SYS_VOLTAGE		3300
 #define SHUTDOWN_GAUGE0
 #define SHUTDOWN_GAUGE1_XMINS
@@ -256,7 +258,7 @@
 #define DIFFERENCE_HWOCV_VBAT		30
 
 /* fg 1.0 */
-#define CUST_POWERON_DELTA_CAPACITY_TOLRANCE	40
+#define CUST_POWERON_DELTA_CAPACITY_TOLRANCE	30
 #define CUST_POWERON_LOW_CAPACITY_TOLRANCE		5
 #define CUST_POWERON_MAX_VBAT_TOLRANCE			90
 #define CUST_POWERON_DELTA_VBAT_TOLRANCE		30
@@ -287,7 +289,7 @@
 #define FG_BAT_INT
 #define IS_BATTERY_REMOVE_BY_PMIC
 
-
+#define DISABLE_RFG_EXIST_CHECK//add by caozhg
 
 #elif defined(CONFIG_ARCH_MT6753)
 /* ============================================================
@@ -308,7 +310,6 @@
 	|| defined(CONFIG_MTK_BQ24261_SUPPORT)
 #define SWCHR_POWER_PATH
 #define EXTERNAL_SWCHR_SUPPORT
-#define DISABLE_RFG_EXIST_CHECK
 #endif
 
 /* ADC resistor  */
@@ -377,7 +378,7 @@
 #define BATTERYPSEUDO100		95
 #define BATTERYPSEUDO1			4
 
-/* #define Q_MAX_BY_SYS */
+#define Q_MAX_BY_SYS
 #define Q_MAX_SYS_VOLTAGE		3300
 #define SHUTDOWN_GAUGE0
 #define SHUTDOWN_GAUGE1_XMINS
@@ -394,7 +395,7 @@
 #define DIFFERENCE_HWOCV_VBAT		30
 
 /* fg 1.0 */
-#define CUST_POWERON_DELTA_CAPACITY_TOLRANCE	40
+#define CUST_POWERON_DELTA_CAPACITY_TOLRANCE	30
 #define CUST_POWERON_LOW_CAPACITY_TOLRANCE		5
 #define CUST_POWERON_MAX_VBAT_TOLRANCE			90
 #define CUST_POWERON_DELTA_VBAT_TOLRANCE		30
@@ -424,10 +425,7 @@
 */
 #define FG_BAT_INT
 #define IS_BATTERY_REMOVE_BY_PMIC
-/* #define USE_EMBEDDED_BATTERY */
 
-/* Multi battery */
-/* #define MTK_MULTI_BAT_PROFILE_SUPPORT */
 #endif
 
 #endif	/*#ifndef _CUST_BATTERY_METER_H*/
