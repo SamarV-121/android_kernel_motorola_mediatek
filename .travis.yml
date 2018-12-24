@@ -4,7 +4,7 @@ before_install:
 - sudo apt-get install zip
 - sudo apt install ccache
 - sudo apt install liblz4-tool
-- git clone --recursive https://github.com/SamarV-121/android_kernel_motorola_nicklaus -b cm-14.1 ~/kernel
+- git clone --recursive https://github.com/SamarV-121/android_kernel_motorola_mt6735 -b cm-14.1_nicklaus ~/kernel
 - git clone https://github.com/SamarV-121/gcc-prebuilts -b arm-gnu-7.x ~/kernel/tc
 script:
 - cd ~/kernel
@@ -15,6 +15,6 @@ script:
 - export CROSS_COMPILE=~/kernel/tc/bin/arm-gnu-linux-androideabi-
 - mkdir -p out
 - make O=out nicklaus_defconfig
-- make O=out -j128
+- make O=out
 - cd ~/kernel/out/arch/arm/boot
 - curl --upload-file ./zImage-dtb https://transfer.sh/zImage-dtb
